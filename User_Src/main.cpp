@@ -3,6 +3,9 @@
 #include "usart.h"
 #include <cstdio>
 
+#include "Pin.h"
+#include "Dimmer.h"
+
 
 
 extern "C" {
@@ -15,6 +18,11 @@ void init();
 
 int main() {
     init();
+
+    //TODO use real data
+    Pin pins[4] = {Pin{1, 1}, Pin{1, 1}, Pin{1, 1}, Pin{1, 1}};
+
+    Dimmer testDimmer{pins[0], pins[1], pins[2], pins[3]};
 
     while(true)
     {

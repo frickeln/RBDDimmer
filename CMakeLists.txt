@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.7)
-project(stm32-tree-hugger)
+project(stm32-dimmer)
 
 enable_language(ASM)
 
