@@ -1,7 +1,8 @@
 #pragma once
 
+#include "gpio.h"
 struct Pin
 {
-    int port;
+    GPIO_TypeDef* port;
     int pin;
 };
