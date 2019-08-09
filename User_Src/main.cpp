@@ -21,15 +21,17 @@ int main() {
     //TODO use real data
 
     Dimmer::init();
+    Dimmer::setMinBrightness(50);
+    Dimmer::setMaxBrightness(250);
 
     uint8_t val = 0;
 
     while(true)
     {
-        HAL_Delay(50);
+        HAL_Delay(10);
         Dimmer::setDimmerLevel(0, val);
         ++val;
-        printf("val: %d\n", val);
+        //printf("val: %d\n", 255);
 
     }
 }
