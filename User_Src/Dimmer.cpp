@@ -10,10 +10,12 @@
 #define LAST_PULSE_RESET -1
 #define PULSE_LENGTH 20
 
-uint8_t Dimmer::dimmerLevels[NUM_DIMMER_PINS] = {255};
+uint8_t Dimmer::dimmerLevels[NUM_DIMMERS] = {255};
 uint16_t Dimmer::currentTick = 0;
-const Pin Dimmer::pins[NUM_DIMMER_PINS] = {Pin{GPIOB, GPIO_PIN_12}, Pin{GPIOB, GPIO_PIN_13}, Pin{GPIOB, GPIO_PIN_14}, Pin{GPIOB, GPIO_PIN_15}};
-int16_t Dimmer::lastPulseTime[NUM_DIMMER_PINS] = {LAST_PULSE_RESET};
+const Pin Dimmer::pins[NUM_DIMMERS] = {Pin{GPIOB, GPIO_PIN_12}, Pin{GPIOB, GPIO_PIN_13}, Pin{GPIOB, GPIO_PIN_14}, Pin{GPIOB, GPIO_PIN_15},
+                                       Pin{GPIOB, GPIO_PIN_6}, Pin{GPIOB, GPIO_PIN_7}, Pin{GPIOB, GPIO_PIN_8}, Pin{GPIOB, GPIO_PIN_9},
+                                       Pin{GPIOA, GPIO_PIN_15}, Pin{GPIOB, GPIO_PIN_3}, Pin{GPIOB, GPIO_PIN_4}, Pin{GPIOB, GPIO_PIN_5}};
+int16_t Dimmer::lastPulseTime[NUM_DIMMERS] = {LAST_PULSE_RESET};
 uint8_t Dimmer::minBrightness = 0;
 uint8_t Dimmer::maxBrightness = 255;
 bool Dimmer::timerLock= false;
@@ -36,7 +38,7 @@ void Dimmer::notifyZeroCrossing() {
     bla = HAL_GetTick();
 
 
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
+   // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
 
     //exti has less priority than timer tick. Thus when we are here we can be sure that no timer is running
     //stop the timer to be able to reset state without race conditions
@@ -51,13 +53,13 @@ void Dimmer::notifyZeroCrossing() {
     }
 
     //reset pulse start times
-    for(int i = 0; i < NUM_DIMMER_PINS; ++i)
+    for(int i = 0; i < NUM_DIMMERS; ++i)
     {
         lastPulseTime[i] = LAST_PULSE_RESET;
     }
     HAL_TIM_Base_Start_IT(&htim3);
 
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
+  //  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
 }
 
 
@@ -65,7 +67,7 @@ void Dimmer::notifyZeroCrossing() {
 
 void Dimmer::notifyTimerTick() {
 
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
+    //HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
 
 
     //tick 1 => 0,000039062s have already passed
@@ -85,12 +87,12 @@ void Dimmer::notifyTimerTick() {
             HAL_GPIO_WritePin(p.port, p.pin, GPIO_PIN_RESET);
         }
         HAL_TIM_Base_Stop_IT(&htim3);
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
+       // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
         return;
     }
 
 
-    for(int i = 0; i < NUM_DIMMER_PINS; ++i) {
+    for(int i = 0; i < NUM_DIMMERS; ++i) {
 
         if(currentTick >= (maxTicks - dimmerLevels[i])
            && lastPulseTime[i] == LAST_PULSE_RESET) //only turn on if it hasn't been turned on before
@@ -107,7 +109,7 @@ void Dimmer::notifyTimerTick() {
         }
 
     }
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
+  //  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
 }
 
 
@@ -123,7 +125,7 @@ void Dimmer::setDimmerLevel(int i, uint8_t level) {
     if(level > maxBrightness)
         level = maxBrightness;
 
-    if(i >= 0 && i < NUM_DIMMER_PINS)
+    if(i >= 0 && i < NUM_DIMMERS)
     {
         dimmerLevels[i] = level;
     }
@@ -135,7 +137,7 @@ void Dimmer::setDimmerLevel(int i, uint8_t level) {
 
 void Dimmer::setMaxBrightness(uint8_t level) {
     maxBrightness = level;
-    for(int i = 0; i < NUM_DIMMER_PINS; ++i)
+    for(int i = 0; i < NUM_DIMMERS; ++i)
     {
         if(dimmerLevels[i] > maxBrightness)
             dimmerLevels[i] = maxBrightness;
@@ -144,7 +146,7 @@ void Dimmer::setMaxBrightness(uint8_t level) {
 
 void Dimmer::setMinBrightness(uint8_t level) {
     minBrightness = level;
-    for(int i = 0; i < NUM_DIMMER_PINS; ++i)
+    for(int i = 0; i < NUM_DIMMERS; ++i)
     {
         if(dimmerLevels[i] < minBrightness)
             dimmerLevels[i] = 0;
